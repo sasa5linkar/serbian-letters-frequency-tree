@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Serbian Frequency Tree output files (generated)
+frequency_tree.txt
+
 # C extensions
 *.so
 

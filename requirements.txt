@@ -1,0 +1,4 @@
+# Serbian Letters Frequency Tree
+# This project uses only Python standard library
+# No external dependencies required
+# Python 3.6+ is recommended
