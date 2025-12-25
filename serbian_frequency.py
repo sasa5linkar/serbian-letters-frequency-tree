@@ -152,35 +152,42 @@ def generate_ascii_tree(frequencies: List[Tuple[str, int, float]], alphabet_name
     lines.append("                         /  |  \\")
     lines.append("")
     
+    # Tree shape indentation levels (creates wider middle section)
+    INDENT_TOP = 27          # Narrow top
+    INDENT_UPPER_MID = 24    # Upper middle - wider
+    INDENT_LOWER_MID = 21    # Lower middle - widest
+    INDENT_TRUNK = 24        # Near trunk - narrowing
+    
+    # Branch decoration patterns
+    BRANCH_PATTERNS = ['/', ' ', '~']  # Cycles through these patterns
+    
     # Generate tree with letters arranged by frequency
     num_letters = len(frequencies)
     
     for idx, (letter, count, percentage) in enumerate(frequencies):
         # Calculate indentation to create tree shape
-        # Start narrow at top, widen in middle, narrow at trunk
         if idx < num_letters // 4:
-            # Top - narrow
-            indent = 27
+            indent = INDENT_TOP
         elif idx < num_letters // 2:
-            # Upper-middle - wider
-            indent = 24
+            indent = INDENT_UPPER_MID
         elif idx < 3 * num_letters // 4:
-            # Lower-middle - widest
-            indent = 21
+            indent = INDENT_LOWER_MID
         else:
-            # Near trunk - narrowing
-            indent = 24
+            indent = INDENT_TRUNK
         
         # Format the letter with count and percentage
         letter_display = f"{letter} ({count}, {percentage:.1f}%)"
         
-        # Add decorative branches
-        if idx % 3 == 0:
+        # Add decorative branches using pattern cycle
+        pattern_idx = idx % len(BRANCH_PATTERNS)
+        pattern = BRANCH_PATTERNS[pattern_idx]
+        
+        if pattern == '/':
             line = f"{' ' * (indent - 2)}/ {letter_display} \\"
-        elif idx % 3 == 1:
-            line = f"{' ' * indent}{letter_display}"
-        else:
+        elif pattern == '~':
             line = f"{' ' * (indent - 1)}~ {letter_display} ~"
+        else:  # plain
+            line = f"{' ' * indent}{letter_display}"
         
         lines.append(line)
     
