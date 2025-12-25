@@ -11,7 +11,8 @@ from collections import Counter
 from typing import Dict, List, Tuple
 
 
-# Serbian alphabets
+# Serbian alphabets (single-character letters only)
+# Note: Multi-character letters (Dž, Lj, Nj) are handled separately below
 SERBIAN_CYRILLIC = [
     'А', 'Б', 'В', 'Г', 'Д', 'Ђ', 'Е', 'Ж', 'З', 'И', 'Ј', 'К', 'Л', 'Љ',
     'М', 'Н', 'Њ', 'О', 'П', 'Р', 'С', 'Т', 'Ћ', 'У', 'Ф', 'Х', 'Ц', 'Ч',
@@ -25,7 +26,8 @@ SERBIAN_LATIN = [
 ]
 
 # Multi-character letters for proper matching (must be checked first)
-# Note: After uppercase, these become DŽ, LJ, NJ
+# Note: After uppercase, Latin digraphs become DŽ, LJ, NJ (both chars uppercase)
+# We normalize them back to Dž, Lj, Nj for consistent display
 MULTI_CHAR_LATIN_UPPER = ['DŽ', 'LJ', 'NJ']
 MULTI_CHAR_LATIN_ORIGINAL = ['Dž', 'Lj', 'Nj']
 MULTI_CHAR_CYRILLIC = ['Љ', 'Њ', 'Џ']
