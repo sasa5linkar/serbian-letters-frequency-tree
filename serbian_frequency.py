@@ -38,18 +38,20 @@ def normalize_text(text: str) -> str:
     return text.upper()
 
 
-def extract_serbian_letters(text: str) -> List[str]:
+def extract_serbian_letters(text: str) -> Tuple[List[str], List[str]]:
     """
     Extract Serbian letters from text, properly handling multi-character letters.
+    Separates Cyrillic and Latin letters.
     
     Args:
         text: Input text to analyze
         
     Returns:
-        List of Serbian letters found in the text
+        Tuple of (cyrillic_letters, latin_letters)
     """
     text = normalize_text(text)
-    letters = []
+    cyrillic_letters = []
+    latin_letters = []
     i = 0
     
     while i < len(text):
@@ -58,16 +60,19 @@ def extract_serbian_letters(text: str) -> List[str]:
         # Check for multi-character letters first (2 characters)
         if i + 1 < len(text):
             two_char = text[i:i+2]
-            if two_char in MULTI_CHAR_LATIN_UPPER or two_char in MULTI_CHAR_CYRILLIC:
+            if two_char in MULTI_CHAR_CYRILLIC:
+                cyrillic_letters.append(two_char)
+                i += 2
+                matched = True
+                continue
+            elif two_char in MULTI_CHAR_LATIN_UPPER:
                 # Normalize DŽ, LJ, NJ to Dž, Lj, Nj for display
                 if two_char == 'DŽ':
-                    letters.append('Dž')
+                    latin_letters.append('Dž')
                 elif two_char == 'LJ':
-                    letters.append('Lj')
+                    latin_letters.append('Lj')
                 elif two_char == 'NJ':
-                    letters.append('Nj')
-                else:
-                    letters.append(two_char)
+                    latin_letters.append('Nj')
                 i += 2
                 matched = True
                 continue
@@ -75,11 +80,13 @@ def extract_serbian_letters(text: str) -> List[str]:
         # Check for single-character letters
         if not matched:
             char = text[i]
-            if char in SERBIAN_CYRILLIC or char in SERBIAN_LATIN:
-                letters.append(char)
+            if char in SERBIAN_CYRILLIC:
+                cyrillic_letters.append(char)
+            elif char in SERBIAN_LATIN:
+                latin_letters.append(char)
             i += 1
     
-    return letters
+    return cyrillic_letters, latin_letters
 
 
 def calculate_frequencies(letters: List[str]) -> List[Tuple[str, int, float]]:
@@ -110,26 +117,28 @@ def calculate_frequencies(letters: List[str]) -> List[Tuple[str, int, float]]:
     return frequencies
 
 
-def generate_ascii_tree(frequencies: List[Tuple[str, int, float]]) -> str:
+def generate_ascii_tree(frequencies: List[Tuple[str, int, float]], alphabet_name: str = "") -> str:
     """
     Generate ASCII tree visualization of letter frequencies.
     
     Args:
         frequencies: List of tuples (letter, count, percentage)
+        alphabet_name: Name of the alphabet (e.g., "Cyrillic", "Latin")
         
     Returns:
         String containing ASCII tree representation
     """
     if not frequencies:
-        return "No Serbian letters found in the input text.\n"
+        return ""
     
     lines = []
-    lines.append("Serbian Letter Frequency Tree")
-    lines.append("=" * 50)
-    lines.append("")
+    
+    if alphabet_name:
+        lines.append(f"{alphabet_name} Letters")
+        lines.append("-" * 50)
     
     total_letters = sum(count for _, count, _ in frequencies)
-    lines.append(f"Total Serbian letters: {total_letters}")
+    lines.append(f"Total: {total_letters}")
     lines.append("")
     
     # Generate tree structure
@@ -154,6 +163,48 @@ def generate_ascii_tree(frequencies: List[Tuple[str, int, float]]) -> str:
         lines.append(line)
     
     return "\n".join(lines) + "\n"
+
+
+def generate_combined_tree(cyrillic_freq: List[Tuple[str, int, float]], 
+                          latin_freq: List[Tuple[str, int, float]]) -> str:
+    """
+    Generate combined ASCII tree with separate sections for Cyrillic and Latin.
+    
+    Args:
+        cyrillic_freq: List of tuples (letter, count, percentage) for Cyrillic
+        latin_freq: List of tuples (letter, count, percentage) for Latin
+        
+    Returns:
+        String containing combined ASCII tree representation
+    """
+    lines = []
+    lines.append("Serbian Letter Frequency Tree")
+    lines.append("=" * 50)
+    lines.append("")
+    
+    total_cyrillic = sum(count for _, count, _ in cyrillic_freq) if cyrillic_freq else 0
+    total_latin = sum(count for _, count, _ in latin_freq) if latin_freq else 0
+    total_all = total_cyrillic + total_latin
+    
+    if total_all == 0:
+        return "No Serbian letters found in the input text.\n"
+    
+    lines.append(f"Total Serbian letters: {total_all}")
+    lines.append(f"  Cyrillic: {total_cyrillic}")
+    lines.append(f"  Latin: {total_latin}")
+    lines.append("")
+    
+    # Generate Cyrillic tree
+    if cyrillic_freq:
+        cyrillic_tree = generate_ascii_tree(cyrillic_freq, "Cyrillic")
+        lines.append(cyrillic_tree)
+    
+    # Generate Latin tree
+    if latin_freq:
+        latin_tree = generate_ascii_tree(latin_freq, "Latin")
+        lines.append(latin_tree)
+    
+    return "\n".join(lines)
 
 
 def read_input(input_source: str = None) -> str:
@@ -239,14 +290,15 @@ Examples:
         print("Warning: Input text is empty.", file=sys.stderr)
         tree = "No text provided.\n"
     else:
-        # Extract Serbian letters
-        letters = extract_serbian_letters(text)
+        # Extract Serbian letters (separated by alphabet)
+        cyrillic_letters, latin_letters = extract_serbian_letters(text)
         
-        # Calculate frequencies
-        frequencies = calculate_frequencies(letters)
+        # Calculate frequencies for each alphabet
+        cyrillic_freq = calculate_frequencies(cyrillic_letters)
+        latin_freq = calculate_frequencies(latin_letters)
         
-        # Generate ASCII tree
-        tree = generate_ascii_tree(frequencies)
+        # Generate combined ASCII tree
+        tree = generate_combined_tree(cyrillic_freq, latin_freq)
     
     # Write output
     write_output(tree, args.output_file)
