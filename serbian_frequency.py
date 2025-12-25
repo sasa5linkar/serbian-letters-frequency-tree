@@ -123,6 +123,7 @@ def calculate_frequencies(letters: List[str]) -> List[Tuple[str, int, float]]:
 def generate_ascii_tree(frequencies: List[Tuple[str, int, float]], alphabet_name: str = "") -> str:
     """
     Generate ASCII tree visualization of letter frequencies.
+    Creates a decorative tree shape with letters arranged by frequency.
     
     Args:
         frequencies: List of tuples (letter, count, percentage)
@@ -137,33 +138,58 @@ def generate_ascii_tree(frequencies: List[Tuple[str, int, float]], alphabet_name
     lines = []
     
     if alphabet_name:
-        lines.append(f"{alphabet_name} Letters")
-        lines.append("-" * 50)
+        lines.append(f"{alphabet_name} Letter Frequency Tree")
+        lines.append("=" * 60)
     
     total_letters = sum(count for _, count, _ in frequencies)
-    lines.append(f"Total: {total_letters}")
+    lines.append(f"Total: {total_letters} letters")
     lines.append("")
     
-    # Generate tree structure
+    # Create tree crown (decorative top)
+    lines.append("                            *")
+    lines.append("                           /|\\")
+    lines.append("                          / | \\")
+    lines.append("                         /  |  \\")
+    lines.append("")
+    
+    # Generate tree with letters arranged by frequency
+    num_letters = len(frequencies)
+    
     for idx, (letter, count, percentage) in enumerate(frequencies):
-        is_last = (idx == len(frequencies) - 1)
-        
-        if idx == 0:
-            # Root of the tree
-            prefix = "┌── "
-            continuation = ""
-        elif is_last:
-            # Last item
-            prefix = "└── "
-            continuation = "    "
+        # Calculate indentation to create tree shape
+        # Start narrow at top, widen in middle, narrow at trunk
+        if idx < num_letters // 4:
+            # Top - narrow
+            indent = 27
+        elif idx < num_letters // 2:
+            # Upper-middle - wider
+            indent = 24
+        elif idx < 3 * num_letters // 4:
+            # Lower-middle - widest
+            indent = 21
         else:
-            # Middle items
-            prefix = "├── "
-            continuation = "│   "
+            # Near trunk - narrowing
+            indent = 24
         
-        # Format the letter entry
-        line = f"{prefix}{letter}: {count} ({percentage:.2f}%)"
+        # Format the letter with count and percentage
+        letter_display = f"{letter} ({count}, {percentage:.1f}%)"
+        
+        # Add decorative branches
+        if idx % 3 == 0:
+            line = f"{' ' * (indent - 2)}/ {letter_display} \\"
+        elif idx % 3 == 1:
+            line = f"{' ' * indent}{letter_display}"
+        else:
+            line = f"{' ' * (indent - 1)}~ {letter_display} ~"
+        
         lines.append(line)
+    
+    # Tree trunk
+    lines.append("")
+    lines.append("                           |||")
+    lines.append("                           |||")
+    lines.append("                           |||")
+    lines.append("                         =======")
     
     return "\n".join(lines) + "\n"
 
