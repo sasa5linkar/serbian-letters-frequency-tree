@@ -1,0 +1,9 @@
+Пример текста на српском језику са ћириличним писмом.
+Овај текст садржи различите српске слове као што су Ђ, Ж, Љ, Њ, Ћ, Џ и Ш.
+Фреквенција слова у тексту може бити корисна за различите анализе.
+
+Primer teksta na srpskom jeziku sa latiničnim pismom.
+Ovaj tekst sadrži različite srpske slove kao što su Đ, Č, Ć, Š, Ž, Lj, Nj i Dž.
+Frekvencija slova u tekstu može biti korisna za različite analize.
+
+Мешовити текст / Mixed text with both alphabets.
