@@ -73,6 +73,9 @@ def extract_serbian_letters(text: str) -> Tuple[List[str], List[str]]:
                     latin_letters.append('Lj')
                 elif two_char == 'NJ':
                     latin_letters.append('Nj')
+                else:
+                    # Should never reach here, but keep for safety
+                    latin_letters.append(two_char)
                 i += 2
                 matched = True
                 continue
